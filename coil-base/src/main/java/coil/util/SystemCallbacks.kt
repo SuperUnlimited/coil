@@ -25,10 +25,12 @@ internal class SystemCallbacks(
     isNetworkObserverEnabled: Boolean
 ) : ComponentCallbacks2, NetworkObserver.Listener {
 
-    @VisibleForTesting internal val imageLoader = WeakReference(imageLoader)
+    @VisibleForTesting
+    internal val imageLoader = WeakReference(imageLoader)
     private val networkObserver = NetworkObserver(context, isNetworkObserverEnabled, this, imageLoader.logger)
 
-    @Volatile private var _isOnline = networkObserver.isOnline
+    @Volatile
+    private var _isOnline = networkObserver.isOnline
     private val _isShutdown = AtomicBoolean(false)
 
     val isOnline get() = _isOnline
@@ -61,8 +63,12 @@ internal class SystemCallbacks(
 
     fun shutdown() {
         if (_isShutdown.getAndSet(true)) return
-        context.unregisterComponentCallbacks(this)
-        networkObserver.shutdown()
+        try {
+            context.unregisterComponentCallbacks(this)
+            networkObserver.shutdown()
+        } catch (_: Exception) {
+        }
+
     }
 
     companion object {
